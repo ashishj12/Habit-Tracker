@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String    @id @default(uuid())
+  email            String    @unique
+  passwordHash     String    @map("password_hash")
+  name             String
+  timezone         String    @default("UTC")
+  resetToken       String    @map("reset_token")
+  resetTokenExpiry DateTime? @map("reset_token_expiry")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  habits Habit[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Habit {
+  id              String        @id @default(uuid())
+  userId          String        @map("user_id")
+  name            String
+  description     String?
+  frequencyType   FrequencyType @map("frequenecy_type")
+  frequencyConfig Json          @map("frequency_config")
+  reminderEnable  Boolean       @default(false) @map("reminder_enable")
+  reminderTime    String?       @map("reminder_time")
+  color           String        @default("#3B82F6")
+  icon            String        @default("⭐")
+  archived        Boolean       @default(false)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completions   Completion[]
+  streak        Streak?
+  notifications NotificationLog[]
+
+  @@index([userId])
+  @@index([userId, archived])
+  @@map("habits")
+}
+
+enum FrequencyType {
+  DAILY
+  WEEKLY
+  CUSTOM
+}
+
+model Completion {
+  id            String   @id @default(uuid())
+  habitId       String   @map("habit_id")
+  completedDate String   @map("completed_date")
+  notes         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  habit         Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, completedDate])
+  @@index([habitId, completedDate])
+  @@index([completedDate])
+  @@map("completions")
+}
+
+model Streak {
+  id                String   @id @default(uuid())
+  habitId           String   @unique @map("habit_id")
+  currentStreak     Int      @default(0) @map("current_streak")
+  longestStreak     Int      @default(0) @map("longest_streak")
+  lastCompletedDate String?  @map("last_completed_date")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@map("streaks")
+}
+
+model NotificationLog {
+  id               String @id @default(uuid())
+  habitId          String @map("habit_id")
+  notificationDate String @map("notification_date")
+
+  sentAt       DateTime?          @map("sent_at")
+  status       NotificationStatus
+  errorMessage String?            @map("error_message")
+  habit        Habit              @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, notificationDate])
+  @@index([notificationDate])
+  @@map("notifications_log")
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}

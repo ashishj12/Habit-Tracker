@@ -1,0 +1,87 @@
+# -----------------------------
+# Node / Dependency folders
+# -----------------------------
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+package-lock.json
+
+# -----------------------------
+# Build outputs
+# -----------------------------
+dist
+build
+out
+coverage
+.cache
+
+# -----------------------------
+# Environment files
+# -----------------------------
+.env
+.env.*
+!.env.example
+
+# -----------------------------
+# Prisma related
+# -----------------------------
+prisma/migrations
+prisma/generated
+prisma/dev.db
+prisma/test.db
+
+# -----------------------------
+# TypeScript build artifacts
+# -----------------------------
+*.tsbuildinfo
+
+# -----------------------------
+# Logs and temp files
+# -----------------------------
+*.log
+*.tmp
+*.bak
+*.swp
+
+# -----------------------------
+# Docker / CI
+# -----------------------------
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# -----------------------------
+# Configuration files (format manually)
+# -----------------------------
+.prettierrc
+.prettierignore
+.eslintrc
+.eslintrc.js
+.eslintrc.cjs
+.editorconfig
+tsconfig.json
+tsconfig.build.json
+package.json
+
+# -----------------------------
+# Docs / Assets
+# -----------------------------
+README.md
+CHANGELOG.md
+LICENSE
+*.md
+*.svg
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# -----------------------------
+# IDE / OS Specific
+# -----------------------------
+.vscode
+.idea
+.DS_Store
+Thumbs.db
