@@ -5,7 +5,6 @@ import { getTodayInTimezone } from '../utils/dateHelpers.js';
 import { type FrequencyConfig } from '../types/index.js';
 
 const streakService = new StreakService();
-
 export class HabitService {
   async createHabit(userId: string, data: any) {
     const habit = await prisma.habit.create({
@@ -14,7 +13,7 @@ export class HabitService {
         name: data.name,
         description: data.description,
         frequencyType: data.frequencyType,
-        FrequencyConfig: data.FrequencyConfig,
+        frequencyConfig: data.frequencyConfig,
         reminderEnable: data.reminderEnabled || false,
         reminderTime: data.reminderTime,
         color: data.color || '#3B82F6',
@@ -57,7 +56,7 @@ export class HabitService {
       name: habit.name,
       description: habit.description,
       frequencyType: habit.frequencyType,
-      FrequencyConfig: habit.FrequencyConfig,
+      frequencyConfig: habit.frequencyConfig,
       reminderEnabled: habit.reminderEnable,
       reminderTime: habit.reminderTime,
       color: habit.color,
@@ -91,7 +90,7 @@ export class HabitService {
         name: data.name ?? habit.name,
         description: data.description ?? habit.description,
         frequencyType: data.frequencyType ?? habit.frequencyType,
-        FrequencyConfig: data.FrequencyConfig ?? habit.FrequencyConfig,
+        frequencyConfig: data.frequencyConfig ?? habit.frequencyConfig,
         reminderEnable: data.reminderEnabled ?? habit.reminderEnable,
         reminderTime: data.reminderTime ?? habit.reminderTime,
         color: data.color ?? habit.color,
@@ -100,7 +99,7 @@ export class HabitService {
     });
 
     // Recalculate streak if frequency changed
-    if (data.frequencyType || data.FrequencyConfig) {
+    if (data.frequencyType || data.frequencyConfig) {
       await streakService.invalidateCache(habitId);
       await streakService.calculateStreak(habitId);
     }
