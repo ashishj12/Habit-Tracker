@@ -1,4 +1,4 @@
-import { format, parseISO, isWithinInterval, subDays, startOfDay } from 'date-fns';
+import { format, parseISO, isWithinInterval, subDays } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 
 export const getTodayInTimezone = (timezone: string): string => {

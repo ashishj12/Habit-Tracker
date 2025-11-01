@@ -74,6 +74,4 @@ export class AuthService {
     }
     return user;
   }
-} 
-
-// freenom
+}

@@ -1,14 +1,14 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import app from './app';
-import { prisma } from './config/database';
-import { redisClient } from './config/redis';
-import { startReminderScheduler } from './jobs/schedulers/reminderScheduler';
-import { startReportScheduler } from './jobs/schedulers/reportScheduler';
-import { notificationWorker } from './jobs/workers/notificationWorker';
-import { reportWorker } from './jobs/workers/reportWorker';
-import { logger } from './config/logger';
+import app from './app.js';
+import { prisma } from './config/database.js';
+import { redisClient } from './config/redis.js';
+import { startReminderScheduler } from './jobs/scheduler/reminderScheduler.js';
+import { startReportScheduler } from './jobs/scheduler/reportScheduler.js';
+import { notificationWorker } from './jobs/worker/notificationWorker.js';
+import { reportWorker } from './jobs/worker/reportWorker.js';
+import { logger } from './config/logger.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -53,7 +53,7 @@ async function startServer() {
 // Graceful shutdown
 const shutdown = async () => {
   logger.info('Shutting down gracefully...');
-  
+
   try {
     await notificationWorker.close();
     await reportWorker.close();

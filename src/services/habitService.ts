@@ -51,7 +51,7 @@ export class HabitService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return habits.map(habit => ({
+    return habits.map((habit) => ({
       id: habit.id,
       name: habit.name,
       description: habit.description,

@@ -4,6 +4,7 @@ import { hashPassword } from '../utils/passwordHash.js';
 import { AppError } from '../middleware/errorHandler.middleware.js';
 // import { sendEmail } from '../utils/emailSender.';
 import { logger } from '../config/logger.js';
+import { sendEmail } from '../utils/emailSender.js';
 
 export class PasswordResetService {
   async requestPasswordReset(email: string): Promise<void> {
@@ -63,7 +64,7 @@ export class PasswordResetService {
       where: { id: user.id },
       data: {
         passwordHash,
-        resetToken: null,
+        resetToken: '',
         resetTokenExpiry: null,
       },
     });

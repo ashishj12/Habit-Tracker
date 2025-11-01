@@ -1,8 +1,8 @@
-import { prisma } from '../config/database';
-import { sendEmail } from '../utils/emailSender';
-import { getTodayInTimezone } from '../utils/dateHelpers';
+import { prisma } from '../config/database.js';
+import { sendEmail } from '../utils/emailSender.js';
+import { getTodayInTimezone } from '../utils/dateHelpers.js';
 import { subDays, format } from 'date-fns';
-import { logger } from '../config/logger';
+import { logger } from '../config/logger.js';
 
 export class ReportService {
   async generateWeeklyReport(userId: string): Promise<void> {
@@ -30,25 +30,27 @@ export class ReportService {
     const totalHabits = habits.length;
     const totalCompletions = habits.reduce((sum, h) => sum + h.completions.length, 0);
     const expectedCompletions = totalHabits * 7;
-    const completionRate = expectedCompletions > 0 
-      ? Math.round((totalCompletions / expectedCompletions) * 100)
-      : 0;
+    const completionRate =
+      expectedCompletions > 0 ? Math.round((totalCompletions / expectedCompletions) * 100) : 0;
 
-    const bestHabit = habits.reduce((best, habit) =>
-      habit.completions.length > (best?.completions.length || 0) ? habit : best
-    , habits[0]);
+    const bestHabit = habits.reduce(
+      (best, habit) => (habit.completions.length > (best?.completions.length || 0) ? habit : best),
+      habits[0],
+    );
 
     const htmlContent = this.generateWeeklyReportHTML({
       userName: user.name,
       totalHabits,
       totalCompletions,
       completionRate,
-      bestHabit: bestHabit ? {
-        name: bestHabit.name,
-        completions: bestHabit.completions.length,
-        streak: bestHabit.streak?.currentStreak || 0,
-      } : null,
-      habits: habits.map(h => ({
+      bestHabit: bestHabit
+        ? {
+            name: bestHabit.name,
+            completions: bestHabit.completions.length,
+            streak: bestHabit.streak?.currentStreak || 0,
+          }
+        : null,
+      habits: habits.map((h) => ({
         name: h.name,
         completions: h.completions.length,
         streak: h.streak?.currentStreak || 0,
@@ -88,17 +90,18 @@ export class ReportService {
     });
 
     const totalCompletions = habits.reduce((sum, h) => sum + h.completions.length, 0);
-    const longestStreak = Math.max(...habits.map(h => h.streak?.longestStreak || 0), 0);
-    const avgStreak = habits.length > 0
-      ? habits.reduce((sum, h) => sum + (h.streak?.currentStreak || 0), 0) / habits.length
-      : 0;
+    const longestStreak = Math.max(...habits.map((h) => h.streak?.longestStreak || 0), 0);
+    const avgStreak =
+      habits.length > 0
+        ? habits.reduce((sum, h) => sum + (h.streak?.currentStreak || 0), 0) / habits.length
+        : 0;
 
     const htmlContent = this.generateMonthlyReportHTML({
       userName: user.name,
       totalCompletions,
       longestStreak,
       avgStreak: Math.round(avgStreak),
-      habits: habits.map(h => ({
+      habits: habits.map((h) => ({
         name: h.name,
         completions: h.completions.length,
         currentStreak: h.streak?.currentStreak || 0,
@@ -144,21 +147,29 @@ export class ReportService {
             <p>${data.totalCompletions} out of ${data.totalHabits * 7} possible completions</p>
           </div>
 
-          ${data.bestHabit ? `
+          ${
+            data.bestHabit
+              ? `
             <div class="stat-box">
               <h3>🏆 Best Habit This Week</h3>
               <p><strong>${data.bestHabit.name}</strong></p>
               <p>${data.bestHabit.completions} completions | ${data.bestHabit.streak} day streak</p>
             </div>
-          ` : ''}
+          `
+              : ''
+          }
 
           <h3>All Habits</h3>
-          ${data.habits.map((h: any) => `
+          ${data.habits
+            .map(
+              (h: any) => `
             <div class="habit-item">
               <strong>${h.icon} ${h.name}</strong><br>
               ${h.completions}/7 days | Streak: ${h.streak}
             </div>
-          `).join('')}
+          `,
+            )
+            .join('')}
 
           <p style="text-align: center; color: #666; margin-top: 30px;">
             Keep up the great work! 🎯
@@ -204,12 +215,16 @@ export class ReportService {
           </div>
 
           <h3>Habit Performance</h3>
-          ${data.habits.map((h: any) => `
+          ${data.habits
+            .map(
+              (h: any) => `
             <div class="habit-row">
               <strong>${h.name}</strong><br>
               ${h.completions} completions | Current: ${h.currentStreak} | Best: ${h.longestStreak}
             </div>
-          `).join('')}
+          `,
+            )
+            .join('')}
 
           <p style="text-align: center; color: #666; margin-top: 30px;">
             Amazing progress this month! 🚀
