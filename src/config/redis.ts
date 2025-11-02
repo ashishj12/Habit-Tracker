@@ -1,13 +1,26 @@
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
+import dotenv from 'dotenv';
+import { logger } from './logger.js';
 
-const redisOptions = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD,
-  maxRetriesPerRequest: null, //for queue workers
+dotenv.config();
+
+const redisOptions: {
+  host: string;
+  port: number;
+  maxRetriesPerRequest: null;
+  password?: string; // mark as truly optional
+} = {
+  host: process.env.REDIS_HOST || '127.0.0.1',
+  port: parseInt(process.env.REDIS_PORT || '6379', 10),
+  maxRetriesPerRequest: null,
 };
 
-export const redisClient = new (Redis as any)(redisOptions);
+if (process.env.REDIS_PASSWORD) {
+  redisOptions.password = process.env.REDIS_PASSWORD;
+}
 
-redisClient.on('error', (err: Error) => console.error('Redis Client Error', err));
-redisClient.on('connect', () => console.log('Redis connected'));
+export const redisClient = new Redis(redisOptions);
+
+redisClient.on('connect', () => logger.info('Redis connected'));
+redisClient.on('ready', () => logger.info('Redis ready'));
+redisClient.on('error', (err: Error) => logger.error('Redis Client Error:', err));

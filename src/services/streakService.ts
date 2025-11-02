@@ -54,7 +54,7 @@ export class StreakService {
       lastCompletedDate,
     };
 
-    await redisClient.setEx(cacheKey, CONSTANTS.CACHE_TTL.STREAK, JSON.stringify(streakData));
+    await redisClient.setex(cacheKey, CONSTANTS.CACHE_TTL.STREAK, JSON.stringify(streakData));
     await prisma.streak.upsert({
       where: { habitId },
       update: { currentStreak, longestStreak, lastCompletedDate },

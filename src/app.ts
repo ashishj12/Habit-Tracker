@@ -1,6 +1,4 @@
 import express, { type Express } from 'express';
-// @ts-ignore: no type declarations for express-async-errors
-import 'express-async-errors';
 import cors from 'cors';
 import helmet from 'helmet';
 import authRoutes from './routes/auth.routes.js';

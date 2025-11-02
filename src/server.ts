@@ -23,16 +23,15 @@ if (!fs.existsSync(logsDir)) {
 async function startServer() {
   try {
     // Connect to Redis
-    await redisClient.connect();
-    logger.info('✓ Redis connected');
+    logger.info('Redis connected');
 
     // Test database connection
     await prisma.$connect();
-    logger.info('✓ Database connected');
+    logger.info('Database connected');
 
     // Start background workers
-    logger.info('✓ Notification worker started');
-    logger.info('✓ Report worker started');
+    logger.info('Notification worker started');
+    logger.info('Report worker started');
 
     // Start schedulers
     startReminderScheduler();
@@ -40,9 +39,9 @@ async function startServer() {
 
     // Start Express server
     app.listen(PORT, () => {
-      logger.info(`✓ Server running on port ${PORT}`);
-      logger.info(`✓ Environment: ${process.env.NODE_ENV || 'development'}`);
-      logger.info(`✓ API Documentation: http://localhost:${PORT}/health`);
+      logger.info(`Server running on port ${PORT}`);
+      logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      logger.info(`API Documentation: http://localhost:${PORT}/health`);
     });
   } catch (error) {
     logger.error('Failed to start server:', error);
@@ -59,7 +58,7 @@ const shutdown = async () => {
     await reportWorker.close();
     await prisma.$disconnect();
     await redisClient.quit();
-    logger.info('✓ All connections closed');
+    logger.info('All connections closed');
     process.exit(0);
   } catch (error) {
     logger.error('Error during shutdown:', error);
