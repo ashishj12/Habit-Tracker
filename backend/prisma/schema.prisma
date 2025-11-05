@@ -19,7 +19,7 @@ model User {
   email            String    @unique
   passwordHash     String    @map("password_hash")
   name             String
-  timezone         String    @default("UTC")
+  timezone         String    @default("Asia/Kolkata")
   resetToken       String?   @map("reset_token")
   resetTokenExpiry DateTime? @map("reset_token_expiry")
   createdAt        DateTime  @default(now()) @map("created_at")
