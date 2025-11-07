@@ -2,7 +2,6 @@ import crypto from 'crypto';
 import { prisma } from '../config/database.js';
 import { hashPassword } from '../utils/passwordHash.js';
 import { AppError } from '../middleware/errorHandler.middleware.js';
-// import { sendEmail } from '../utils/emailSender.';
 import { logger } from '../config/logger.js';
 import { sendEmail } from '../utils/emailSender.js';
 
@@ -15,7 +14,6 @@ export class PasswordResetService {
       logger.warn(`Password reset requested for non-existent email: ${email}`);
       return;
     }
-
     const resetToken = crypto.randomBytes(32).toString('hex');
     const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour
 
