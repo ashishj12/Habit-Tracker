@@ -154,11 +154,15 @@ export class HabitService {
 
   async uncompleteHabit(habitId: string, userId: string, completedDate: string) {
     const habit = await this.getHabit(habitId, userId);
+    console.log('habt',habit)
+    if (!habit) {
+      throw new Error('Habit not found for this user');
+    }
 
     await prisma.completion.deleteMany({
       where: {
         habitId,
-        completedDate,
+        completedDate: new Date(completedDate),
       },
     });
 

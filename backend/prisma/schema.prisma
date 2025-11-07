@@ -65,7 +65,7 @@ enum FrequencyType {
 model Completion {
   id            String   @id @default(uuid())
   habitId       String   @map("habit_id")
-  completedDate String   @map("completed_date")
+  completedDate DateTime?   @map("completed_date")
   notes         String?
   createdAt     DateTime @default(now()) @map("created_at")
   habit         Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
