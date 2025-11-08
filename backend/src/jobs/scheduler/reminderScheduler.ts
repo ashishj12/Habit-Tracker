@@ -59,7 +59,11 @@ export const startReminderScheduler = () => {
 
         if (timeDiff <= 15) {
           // Check if already completed today
-          const completedToday = habit.completions.some((c) => c.completedDate === today);
+          const todayString = today; // if getTodayInTimezone() already returns 'yyyy-MM-dd'
+          const completedToday = habit.completions.some(
+            (c) => c.completedDate && format(c.completedDate, 'yyyy-MM-dd') === todayString,
+          );
+
           if (completedToday) {
             console.log(`Habit ${habit.id} already completed today, skipping reminder`);
             continue;

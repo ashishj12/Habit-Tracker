@@ -30,7 +30,10 @@ export class StreakService {
     }
 
     const today = getTodayInTimezone(habit.user.timezone);
-    const completions = habit.completions.map((c) => c.completedDate);
+    const completions: string[] = habit.completions
+      .map((c) => c.completedDate?.toISOString().split('T')[0]) 
+      .filter((d): d is string => d !== undefined); 
+
     let currentStreak = 0;
     let longestStreak = 0;
     let lastCompletedDate: string | null = completions[0] || null;

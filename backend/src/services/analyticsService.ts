@@ -8,7 +8,7 @@ export class AnalyticsService {
     if (!user) throw new Error('User not found');
 
     const today = getTodayInTimezone(user.timezone);
-    const thirtyDaysAgo = format(subDays(new Date(today), 30), 'yyyy-MM-dd');
+    const thirtyDaysAgo = subDays(today, 30);
 
     const habits = await prisma.habit.findMany({
       where: { userId, archived: false },
@@ -27,25 +27,28 @@ export class AnalyticsService {
 
     const totalHabits = habits.length;
     const totalCompletions = habits.reduce((sum, h) => sum + h.completions.length, 0);
+
     const averageStreak =
       totalHabits > 0
         ? habits.reduce((sum, h) => sum + (h.streak?.currentStreak || 0), 0) / totalHabits
         : 0;
+
     const longestStreak = Math.max(...habits.map((h) => h.streak?.longestStreak || 0), 0);
 
-    // Completion rate in last 30 days
-    const expectedCompletions = totalHabits * 30; // Simplified for daily habits
+    // Completion rate (30-day window)
+    const expectedCompletions = totalHabits * 30;
     const completionRate =
       expectedCompletions > 0 ? (totalCompletions / expectedCompletions) * 100 : 0;
 
-    // Completions by date
+    // Group completions by date (convert Dates to strings)
     const completionsByDate: Record<string, number> = {};
-    habits.forEach((habit) => {
-      habit.completions.forEach((completion) => {
-        completionsByDate[completion.completedDate] =
-          (completionsByDate[completion.completedDate] || 0) + 1;
-      });
-    });
+    for (const habit of habits) {
+      for (const completion of habit.completions) {
+        if (!completion.completedDate) continue; // skip null
+        const key = format(completion.completedDate, 'yyyy-MM-dd');
+        completionsByDate[key] = (completionsByDate[key] || 0) + 1;
+      }
+    }
 
     return {
       totalHabits,
@@ -69,9 +72,7 @@ export class AnalyticsService {
       where: { id: habitId, userId },
       include: {
         streak: true,
-        completions: {
-          orderBy: { completedDate: 'desc' },
-        },
+        completions: { orderBy: { completedDate: 'desc' } },
         user: true,
       },
     });
@@ -79,17 +80,19 @@ export class AnalyticsService {
     if (!habit) throw new Error('Habit not found');
 
     const today = getTodayInTimezone(habit.user.timezone);
-    const ninetyDaysAgo = format(subDays(new Date(today), 90), 'yyyy-MM-dd');
+    const ninetyDaysAgo = subDays(today, 90);
 
-    const recentCompletions = habit.completions.filter((c) => c.completedDate >= ninetyDaysAgo);
+    const recentCompletions = habit.completions.filter(
+      (c) => c.completedDate && c.completedDate >= ninetyDaysAgo
+    );
 
-    // Day of week analysis
+    // Count completions by day of week
     const dayOfWeekCounts: Record<number, number> = {};
-    recentCompletions.forEach((c) => {
-      const date = new Date(c.completedDate);
-      const day = date.getDay();
+    for (const c of recentCompletions) {
+      if (!c.completedDate) continue;
+      const day = c.completedDate.getDay();
       dayOfWeekCounts[day] = (dayOfWeekCounts[day] || 0) + 1;
-    });
+    }
 
     const bestDay = Object.entries(dayOfWeekCounts).sort((a, b) => b[1] - a[1])[0];
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -103,10 +106,7 @@ export class AnalyticsService {
         completionRate: (recentCompletions.length / 90) * 100,
       },
       bestDayOfWeek: bestDay
-        ? {
-            day: dayNames[parseInt(bestDay[0])],
-            count: bestDay[1],
-          }
+        ? { day: dayNames[parseInt(bestDay[0])], count: bestDay[1] }
         : null,
       recentCompletions: recentCompletions.slice(0, 10),
     };
