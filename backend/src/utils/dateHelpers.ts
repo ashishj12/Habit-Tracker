@@ -1,4 +1,4 @@
-import { format, parseISO, isWithinInterval, subDays } from 'date-fns';
+import { format, parseISO, isWithinInterval, subDays, startOfDay, endOfDay } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 
 export const getTodayInTimezone = (timezone: string): string => {
@@ -32,4 +32,18 @@ export const getYesterdayInTimezone = (timezone: string): string => {
 export const getDayOfWeek = (dateStr: string): number => {
   // Returns 0-6 (Sunday-Saturday)
   return parseDateString(dateStr).getDay();
+};
+
+export const getDayRangeInTimezone = (timezone: string) => {
+  const now = new Date();
+  const zonedNow = toZonedTime(now, timezone);
+  const start = startOfDay(zonedNow);
+  const end = endOfDay(zonedNow);
+  return { start, end };
+};
+
+export const getTodayDateInTimezone = (timezone: string): Date => {
+  const now = new Date();
+  const zonedNow = toZonedTime(now, timezone);
+  return startOfDay(zonedNow);
 };

@@ -1,8 +1,9 @@
 import { prisma } from '../config/database.js';
 import { AppError } from '../middleware/errorHandler.middleware.js';
 import { StreakService } from './streakService.js';
-import { getTodayInTimezone } from '../utils/dateHelpers.js';
+import { getDayRangeInTimezone, getTodayInTimezone } from '../utils/dateHelpers.js';
 import { type FrequencyConfig } from '../types/index.js';
+import { subDays } from 'date-fns';
 
 const streakService = new StreakService();
 export class HabitService {
@@ -37,15 +38,14 @@ export class HabitService {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new AppError(404, 'User not found');
 
-    const today = getTodayInTimezone(user.timezone);
+    const { start, end } = getDayRangeInTimezone(user.timezone);
 
     const habits = await prisma.habit.findMany({
       where: { userId, archived: false },
       include: {
         streak: true,
         completions: {
-          where: { completedDate: today },
-          take: 1,
+          where: { completedDate: { gte: start, lte: end } },
         },
       },
       orderBy: { createdAt: 'desc' },
@@ -110,9 +110,10 @@ export class HabitService {
   async deleteHabit(habitId: string, userId: string) {
     await this.getHabit(habitId, userId);
 
-    await prisma.habit.update({
-      where: { id: habitId },
-      data: { archived: true },
+    await prisma.habit.deleteMany({
+      where: {
+        archived: true,
+      },
     });
 
     return { message: 'Habit archived successfully' };
@@ -154,7 +155,7 @@ export class HabitService {
 
   async uncompleteHabit(habitId: string, userId: string, completedDate: string) {
     const habit = await this.getHabit(habitId, userId);
-    console.log('habt',habit)
+    console.log('habt', habit);
     if (!habit) {
       throw new Error('Habit not found for this user');
     }
